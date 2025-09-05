@@ -1,44 +1,54 @@
 const Ad = require("../models/Ad");
 
-// ایجاد آگهی جدید
-exports.createAd = async (req, res) => {
+// 📌 گرفتن همه آگهی‌ها
+const getAllAds = async (req, res) => {
   try {
-    const ad = new Ad(req.body);
-    await ad.save();
-    res.status(201).json(ad);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-};
-
-// دریافت همه آگهی‌ها
-exports.getAds = async (req, res) => {
-  try {
-    const ads = await Ad.find().sort({ createdAt: -1 });
+    const ads = await Ad.find();
     res.json(ads);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 };
 
-// دریافت آگهی بر اساس ID
-exports.getAdById = async (req, res) => {
+// 📌 گرفتن یک آگهی با ID
+const getAdById = async (req, res) => {
   try {
     const ad = await Ad.findById(req.params.id);
     if (!ad) return res.status(404).json({ message: "آگهی پیدا نشد" });
     res.json(ad);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 };
 
-// حذف آگهی
-exports.deleteAd = async (req, res) => {
+// 📌 ساخت آگهی جدید
+const createAd = async (req, res) => {
+  try {
+    const ad = new Ad({
+      title: req.body.title,
+      description: req.body.description,
+      price: req.body.price,
+      city: req.body.city,
+      images: req.body.images,
+      user: req.body.user,
+    });
+
+    const newAd = await ad.save();
+    res.status(201).json(newAd);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
+// 📌 حذف آگهی
+const deleteAd = async (req, res) => {
   try {
     const ad = await Ad.findByIdAndDelete(req.params.id);
     if (!ad) return res.status(404).json({ message: "آگهی پیدا نشد" });
     res.json({ message: "آگهی حذف شد" });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 };
+
+module.exports = { getAllAds, getAdById, createAd, deleteAd };
